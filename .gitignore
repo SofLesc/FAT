@@ -1,0 +1,4 @@
+*.py~
+/readtest
+/test
+output.txt
