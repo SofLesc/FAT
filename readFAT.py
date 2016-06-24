@@ -12,7 +12,8 @@ import os
 #Exemplo
 #n = numero de arquivo ou pasta
 #p = parent directory
-#    name               |   ext  |n | size| p
+#f = free space
+#    name               |   ext  |n | size|f | p
 #74 65 73 74 20 20 20 20 74 78 74 00 00 05 00 00
 #t  e  s  t  20 20 20 20 t  x  t  00 00 05 00 00
 
