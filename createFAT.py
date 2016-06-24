@@ -21,7 +21,8 @@ file_number = 0
 #Exemplo
 #n = numero de arquivo ou pasta
 #p = parent directory
-#    name               |   ext  |n | size| p
+#f = free space
+#    name               |   ext  |n | size|f | p
 #74 65 73 74 20 20 20 20 74 78 74 00 00 05 00 00
 #t  e  s  t  20 20 20 20 t  x  t  00 00 05 00 00
 
@@ -39,10 +40,13 @@ def parseDirectory (directory, parentDirectory):
 			for c in filename:
 				output_file.write(c.encode("hex") +' ')
 				#output_file.write(c +'  ')
+			#A diferença de cumprimento do nome até 8 sao espaços			
+			#A extensao de uma pasta sao espaços		
 			for i in range(11 - len(filename)):
 				output_file.write('20 ')
 			directory_number += 1
 			output_file.write("%02d" % (directory_number,) + ' ')
+			#O tamanho de uma pasta e considerado como nulo			
 			output_file.write('00 00 ')
 			output_file.write('00 ')
 			output_file.write("%02d" % (parentDirectory,) + '\n')
@@ -64,9 +68,9 @@ def parseDirectory (directory, parentDirectory):
 						output_file.write('20 ')
 			output_file.write("%02d" % (cluster,) + ' ')
 			output_file.seek(ofset + cluster*cluster_size)
+			#TODO open file in binary
 			current_file = open(directory + '/' + filename)
-			size = 0	
-			#TODO copy in binary not hexa	
+			size = 0				
 			for line in current_file:
 				for c in line:
 					output_file.write(c.encode("hex") +'\n')
@@ -74,6 +78,7 @@ def parseDirectory (directory, parentDirectory):
 			output_file.seek(file_number*16*3 + 3*12)
 			cluster = cluster + 1
 			file_number += 1
+			#TODO increase size bytes to support bigger files
 			high = size/256
 			output_file.write("%02x" % (high,) + ' ')
 			low = size - 256*high
@@ -102,11 +107,8 @@ def main(argv):
 	#Deixa espaco para escrever no arquivo	
 	for i in range(1000):		
 		output_file.write('  \n')
-	output_file.seek(0)	
-	
-	#number_of_files = len([name for name in os.listdir(directory)])
-	#output_file.write("%02d" % (number_of_files,) + '\n')
-		
+	output_file.seek(0)
+
 	parseDirectory(directory, 00)
 			
 if __name__ == "__main__":

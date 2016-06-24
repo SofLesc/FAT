@@ -44,7 +44,6 @@ def main(argv):
 	
 	if(os.path.isdir(directory) == 0):	
 		os.mkdir(directory, 0755)
-	#os.chdir(directory)
 	
 	file_name = ''	
 	count = 0
@@ -62,7 +61,11 @@ def main(argv):
 
 		#File name
 		for i in range (8):
-			aux = int(line[start:end], 16)
+			try:
+				aux = int(line[start:end], 16)
+			except:
+				#End of input			
+				exit(0)			
 			if(aux > 33):
 				file_name = file_name + line[start:end].decode('hex')
 			start +=3
@@ -81,6 +84,7 @@ def main(argv):
 			start +=3
 			end += 3
 		print file_name
+		#Create directory
 		if (directory):
 			file_number += 1
 			directory = False
@@ -90,15 +94,19 @@ def main(argv):
 			pastas[directory_number] = pastas[parent_directory] + "/" + file_name
 			file_name = ''
 			continue
+		#Create and write file		
 		else:
 			file_number += 1
 			parent_directory = int(line[-3:-1], 16)
 			new_file = open(pastas[parent_directory] + "/" + file_name, "w")
 			cluster = int(line[start:end], 16)
-			start +=6
-			end += 6
-			# TODO Pegar os dois bits
-			size = int(line[start:end], 16)
+			start +=3
+			end += 3
+			high = int(line[start:end], 16)
+			start +=3
+			end += 3
+			low = int(line[start:end], 16)
+			size = high*256 + low
 			file_name = ''
 			input_file.seek(ofset + cluster*cluster_size)
 			line_number = 1	
@@ -110,58 +118,6 @@ def main(argv):
 				line_number += 1
 			input_file.seek((file_number)*16*3)
 			new_file.write(content)
-		#break
-'''
-		count = count + 1
-		if(first):
-			count = 0
-			first = 0
-			number_of_files = int(line)
-		else:
-			if line != '20\n' and count < 9:
-				file_name = file_name + line[0:-1].decode('hex')
-			if count == 9:
-				file_name = file_name + '.'
-			#File extension		
-			if count >= 9 and count < 12:
-				if int(line[0:-1]) < 21 and count == 9:
-					directory = 1
-					file_name = file_name[0:-1]
-				else:	
-					file_name = file_name + line[0:-1].decode('hex')	
-			if directory:				
-				if count == 13:
-					print file_name
-					count = 0
-					os.mkdir(file_name)
-					directory = 0
-					file_number = file_number + 1
-					if(file_number == number_of_files):
-						break
-			else:			
-				if count == 11:	
-					print file_name	
-					new_file = open(file_name, "w")
-					file_name = ''
-				if count == 12:
-					 cluster = int(line)
-				if count == 13:
-					count = 0
-					size = int(line)
-					#data
-					input_file.seek(ofset + cluster*cluster_size)
-					line_number = 1	
-					content = ''		
-					for line in input_file:
-						if line_number > size:
-							break
-						content = content + line[0:-1].decode('hex')
-						line_number = line_number + 1
-					input_file.seek((cluster + 1)*13*3 + 3)
-					new_file.write(content)
-					file_number = file_number + 1
-					if(file_number == number_of_files):
-						break
-'''
+
 if __name__ == "__main__":
    main(sys.argv[1:])
